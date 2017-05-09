@@ -1,5 +1,3 @@
-package kazukazu.test;
-
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
