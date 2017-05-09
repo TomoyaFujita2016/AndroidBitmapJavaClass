@@ -69,12 +69,8 @@ public class ImageProcessing {
         return tmpBitmap;
     }
 
-    public int[] globalCoordinateToLocal(View view, int[] XY, Activity activity) {
-
-        Rect rectActionBar = new Rect();
-        Window window = activity.getWindow();
-        window.getDecorView().getWindowVisibleDisplayFrame(rectActionBar);
-
+    public int[] globalCoordinateToLocal(View view, int[] XY) {
+        
         Rect rectView = new Rect();
         view.getGlobalVisibleRect(rectView);
 
@@ -85,13 +81,13 @@ public class ImageProcessing {
         else                        //X coordinates is the inner side of View
             XY[0] -= rectView.left;
 
-        if (XY[1] < rectView.top + rectActionBar.top)   //Y coordinates is the outer side of View
+        if (XY[1] < rectView.top)   //Y coordinates is the outer side of View
             XY[1] = 0;
-        else if (rectView.bottom + rectActionBar.top < XY[1])
+        else if (rectView.bottom < XY[1])
             XY[1] = rectView.height();
-        else                                            //Y coordinates is the inner side of View
-            XY[1] -= rectActionBar.top + rectView.top;
-
+        else                     　//Y coordinates is the inner side of View
+            XY[1] -= rectView.top;
+        
         return XY;
 
     }
