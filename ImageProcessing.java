@@ -1,5 +1,8 @@
+package kazukazu.test;
+
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.util.Log;
 import android.view.View;
@@ -39,7 +42,8 @@ public class ImageProcessing {
         return bitmap;
     }
 
-    public Bitmap resizeBitmap(View view, Bitmap bitmap) {
+    public Bitmap bitmapToMutable(View view, Bitmap bitmap) {
+        //to mutable
         Rect rectView = new Rect();
         view.getGlobalVisibleRect(rectView);
 
@@ -48,7 +52,7 @@ public class ImageProcessing {
     }
 
     public Bitmap drawCrossHair(ImageView imageView, Bitmap bitmap, int x, int y) {
-        tmpBitmap = bitmap;
+        tmpBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
         bitmapHeight = bitmap.getHeight();
         bitmapWidth = bitmap.getWidth();
 
@@ -64,13 +68,17 @@ public class ImageProcessing {
             bitmap.setPixel(i, y, 0x00000000);
         }
 
-        imageView.setImageBitmap(tmpBitmap);
+        imageView.setImageBitmap(bitmap);
 
         return tmpBitmap;
     }
 
-    public int[] globalCoordinateToLocal(View view, int[] XY) {
-        
+    public int[] globalCoordinateToLocal(View view, int[] XY, Activity activity) {
+
+        Rect rectActionBar = new Rect();
+        Window window = activity.getWindow();
+        window.getDecorView().getWindowVisibleDisplayFrame(rectActionBar);
+
         Rect rectView = new Rect();
         view.getGlobalVisibleRect(rectView);
 
@@ -81,13 +89,13 @@ public class ImageProcessing {
         else                        //X coordinates is the inner side of View
             XY[0] -= rectView.left;
 
-        if (XY[1] < rectView.top)   //Y coordinates is the outer side of View
+        if (XY[1] < rectView.top + rectActionBar.top)   //Y coordinates is the outer side of View
             XY[1] = 0;
-        else if (rectView.bottom < XY[1])
+        else if (rectView.bottom + rectActionBar.top < XY[1])
             XY[1] = rectView.height();
-        else                     　//Y coordinates is the inner side of View
-            XY[1] -= rectView.top;
-        
+        else                                            //Y coordinates is the inner side of View
+            XY[1] -= rectActionBar.top + rectView.top;
+
         return XY;
 
     }
