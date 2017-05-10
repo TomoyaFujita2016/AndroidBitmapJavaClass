@@ -1,39 +1,24 @@
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Rect;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
 
 /**
- * Created by TomoyaFujita on 2017/05/04.
+ * Created by Tomoya on 2017/05/09.
  */
 
-public class ImageProcessing {
+public class ImageProcessing1 {
+
+    private final int RED = 0x00FF0000;
+    private final int BLACK = 0x00000000;
+
     private int bitmapHeight;
     private int bitmapWidth;
     private int[] pixels;
-    private int pixel;
     private Bitmap tmpBitmap;
 
-    public Bitmap drawCenterLine(Bitmap bitmap) {
-
-        bitmapHeight = bitmap.getHeight();
-        bitmapWidth = bitmap.getWidth();
-        pixels = new int[bitmapWidth * bitmapHeight];
-
-        bitmap.getPixels(pixels, 0, bitmapWidth, 0, 0, bitmapWidth, bitmapHeight);
-        for (int i = bitmapWidth / 2; i < bitmapHeight * bitmapWidth; i += bitmapWidth) {
-            for (int n = 0; n < 10; n++) {
-                pixels[i - n] = 0xFFFFFFFF;
-                pixels[i + n] = 0xFFFFFFFF;
-            }
-        }
-        bitmap.setPixels(pixels, 0, bitmapWidth, 0, 0, bitmapWidth, bitmapHeight);
-        return bitmap;
-    }
 
     public Bitmap drawLine(Bitmap bitmap) {
 
@@ -60,10 +45,10 @@ public class ImageProcessing {
             y--;
 
         for (int i = 0; i < bitmapHeight; i++) {
-            bitmap.setPixel(x, i, 0x00000000);
+            bitmap.setPixel(x, i, BLACK);
         }
         for (int i = 0; i < bitmapWidth; i++) {
-            bitmap.setPixel(i, y, 0x00000000);
+            bitmap.setPixel(i, y, BLACK);
         }
 
         imageView.setImageBitmap(bitmap);
@@ -71,11 +56,39 @@ public class ImageProcessing {
         return tmpBitmap;
     }
 
+
+    public Bitmap drawRectangle(ImageView imageView, Bitmap bitmap, int startX, int startY, int endX, int endY){
+        tmpBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+        bitmapHeight = bitmap.getHeight();
+        bitmapWidth = bitmap.getWidth();
+
+        if(startX == bitmapWidth)
+            startX --;
+        if (startY == bitmapHeight)
+            startY --;
+        if(endX == bitmapWidth)
+            endX --;
+        if(endY == bitmapHeight)
+            endY --;
+
+        for (int i = startX; i < endX; i++){
+            bitmap.setPixel(i, startY, RED);
+            bitmap.setPixel(i, endY, RED);
+        }
+        for (int i = startY; i < endY; i ++){
+            bitmap.setPixel(startX, i, RED);
+            bitmap.setPixel(endX, i, RED);
+        }
+
+        imageView.setImageBitmap(bitmap);
+        return tmpBitmap;
+
+
+    }
+
+
     public int[] globalCoordinateToLocal(View view, int[] XY, Activity activity) {
 
-        Rect rectActionBar = new Rect();
-        Window window = activity.getWindow();
-        window.getDecorView().getWindowVisibleDisplayFrame(rectActionBar);
 
         Rect rectView = new Rect();
         view.getGlobalVisibleRect(rectView);
@@ -87,12 +100,12 @@ public class ImageProcessing {
         else                        //X coordinates is the inner side of View
             XY[0] -= rectView.left;
 
-        if (XY[1] < rectView.top + rectActionBar.top)   //Y coordinates is the outer side of View
+        if (XY[1] < rectView.top)   //Y coordinates is the outer side of View
             XY[1] = 0;
-        else if (rectView.bottom + rectActionBar.top < XY[1])
+        else if (rectView.bottom< XY[1])
             XY[1] = rectView.height();
         else                                            //Y coordinates is the inner side of View
-            XY[1] -= rectActionBar.top + rectView.top;
+            XY[1] -= rectView.top;
 
         return XY;
 
