@@ -45,47 +45,46 @@ public class ImageProcessing1 {
             y--;
 
         for (int i = 0; i < bitmapHeight; i++) {
-            bitmap.setPixel(x, i, BLACK);
+            tmpBitmap.setPixel(x, i, BLACK);
         }
         for (int i = 0; i < bitmapWidth; i++) {
-            bitmap.setPixel(i, y, BLACK);
+            tmpBitmap.setPixel(i, y, BLACK);
         }
 
-        imageView.setImageBitmap(bitmap);
+        imageView.setImageBitmap(tmpBitmap);
 
         return tmpBitmap;
     }
 
 
-    public Bitmap drawRectangle(ImageView imageView, Bitmap bitmap, int startX, int startY, int endX, int endY){
+    public Bitmap drawRectangle(ImageView imageView, Bitmap bitmap, int startX, int startY, int endX, int endY) {
         tmpBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
         bitmapHeight = bitmap.getHeight();
         bitmapWidth = bitmap.getWidth();
 
-        if(startX == bitmapWidth)
-            startX --;
+        if (startX == bitmapWidth)
+            startX--;
         if (startY == bitmapHeight)
-            startY --;
-        if(endX == bitmapWidth)
-            endX --;
-        if(endY == bitmapHeight)
-            endY --;
+            startY--;
+        if (endX == bitmapWidth)
+            endX--;
+        if (endY == bitmapHeight)
+            endY--;
 
-        for (int i = startX; i < endX; i++){
-            bitmap.setPixel(i, startY, RED);
-            bitmap.setPixel(i, endY, RED);
+        for (int i = startX; i < endX; i++) {
+            tmpBitmap.setPixel(i, startY, RED);
+            tmpBitmap.setPixel(i, endY, RED);
         }
-        for (int i = startY; i < endY; i ++){
-            bitmap.setPixel(startX, i, RED);
-            bitmap.setPixel(endX, i, RED);
+        for (int i = startY; i < endY; i++) {
+            tmpBitmap.setPixel(startX, i, RED);
+            tmpBitmap.setPixel(endX, i, RED);
         }
 
-        imageView.setImageBitmap(bitmap);
+        imageView.setImageBitmap(tmpBitmap);
         return tmpBitmap;
 
 
     }
-
 
     public int[] globalCoordinateToLocal(View view, int[] XY, Activity activity) {
 
