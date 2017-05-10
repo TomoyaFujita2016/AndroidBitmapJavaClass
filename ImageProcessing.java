@@ -13,7 +13,6 @@ public class ImageProcessing1 {
 
     private final int RED = 0x00FF0000;
     private final int BLACK = 0x00000000;
-
     private int bitmapHeight;
     private int bitmapWidth;
     private int[] pixels;
