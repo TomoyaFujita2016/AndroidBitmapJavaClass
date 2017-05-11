@@ -9,14 +9,13 @@ import android.widget.ImageView;
  * Created by Tomoya on 2017/05/09.
  */
 
-public class ImageProcessing1 {
+public class ImageProcessing {
 
-    private final int RED = 0x00FF0000;
-    private final int BLACK = 0x00000000;
     private int bitmapHeight;
     private int bitmapWidth;
     private int[] pixels;
     private Bitmap tmpBitmap;
+    private int idxLineThickness;
 
 
     public Bitmap drawLine(Bitmap bitmap) {
@@ -33,7 +32,7 @@ public class ImageProcessing1 {
         return bitmap;
     }
 
-    public Bitmap drawCrossHair(ImageView imageView, Bitmap bitmap, int x, int y) {
+    public Bitmap drawCrossHair(ImageView imageView, Bitmap bitmap, int x, int y, int lineThickness, int color) {
         tmpBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
         bitmapHeight = bitmap.getHeight();
         bitmapWidth = bitmap.getWidth();
@@ -43,11 +42,27 @@ public class ImageProcessing1 {
         if (y == bitmapHeight)
             y--;
 
+        if (x > bitmapWidth - lineThickness - 1)
+            x -= x - (bitmapWidth - lineThickness - 1);
+        if (x < lineThickness)
+            x += lineThickness - x;
+        if (y > bitmapHeight - lineThickness - 1)
+            y -= y - (bitmapHeight - lineThickness - 1);
+        if (y < lineThickness)
+            y += lineThickness - y;
+
         for (int i = 0; i < bitmapHeight; i++) {
-            tmpBitmap.setPixel(x, i, BLACK);
+            for (idxLineThickness = 0; idxLineThickness < lineThickness + 1; idxLineThickness++) {
+                tmpBitmap.setPixel(x + idxLineThickness, i, color);
+                tmpBitmap.setPixel(x - idxLineThickness, i, color);
+            }
         }
         for (int i = 0; i < bitmapWidth; i++) {
-            tmpBitmap.setPixel(i, y, BLACK);
+            for (idxLineThickness = 0; idxLineThickness < lineThickness + 1; idxLineThickness ++) {
+                tmpBitmap.setPixel(i, y + idxLineThickness, color);
+                tmpBitmap.setPixel(i, y - idxLineThickness, color);
+
+            }
         }
 
         imageView.setImageBitmap(tmpBitmap);
@@ -56,7 +71,7 @@ public class ImageProcessing1 {
     }
 
 
-    public Bitmap drawRectangle(ImageView imageView, Bitmap bitmap, int startX, int startY, int endX, int endY) {
+    public Bitmap drawRectangle(ImageView imageView, Bitmap bitmap, int startX, int startY, int endX, int endY, int lineThickness, int color) {
         tmpBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
         bitmapHeight = bitmap.getHeight();
         bitmapWidth = bitmap.getWidth();
@@ -70,13 +85,39 @@ public class ImageProcessing1 {
         if (endY == bitmapHeight)
             endY--;
 
-        for (int i = startX; i < endX; i++) {
-            tmpBitmap.setPixel(i, startY, RED);
-            tmpBitmap.setPixel(i, endY, RED);
+        if (startX > bitmapWidth - lineThickness - 1)
+            startX -= startX - (bitmapWidth - lineThickness - 1);
+        if (startX < lineThickness)
+            startX += lineThickness - startX;
+        if (startY > bitmapHeight - lineThickness - 1)
+            startY -= startY - (bitmapHeight - lineThickness - 1);
+        if (startY < lineThickness)
+            startY += lineThickness - startY;
+
+        if (endX > bitmapWidth - lineThickness - 1)
+            endX -= endX - (bitmapWidth - lineThickness - 1);
+        if (endX < lineThickness)
+            endX += lineThickness - endX;
+        if (endY > bitmapHeight - lineThickness - 1)
+            endY -= endY - (bitmapHeight - lineThickness - 1);
+        if (endY < lineThickness)
+            endY += lineThickness - endY;
+
+        for (int i = startX - lineThickness; i < endX + lineThickness; i++) {
+            for (idxLineThickness = 0; idxLineThickness < lineThickness + 1; idxLineThickness++) {
+                tmpBitmap.setPixel(i, startY + idxLineThickness, color);
+                tmpBitmap.setPixel(i, endY + idxLineThickness, color);
+                tmpBitmap.setPixel(i, startY - idxLineThickness, color);
+                tmpBitmap.setPixel(i, endY - idxLineThickness, color);
+            }
         }
         for (int i = startY; i < endY; i++) {
-            tmpBitmap.setPixel(startX, i, RED);
-            tmpBitmap.setPixel(endX, i, RED);
+            for (idxLineThickness = 0; idxLineThickness < lineThickness + 1; idxLineThickness++) {
+                tmpBitmap.setPixel(startX + idxLineThickness, i, color);
+                tmpBitmap.setPixel(endX + idxLineThickness, i, color);
+                tmpBitmap.setPixel(startX - idxLineThickness, i, color);
+                tmpBitmap.setPixel(endX - idxLineThickness, i, color);
+            }
         }
 
         imageView.setImageBitmap(tmpBitmap);
@@ -100,7 +141,7 @@ public class ImageProcessing1 {
 
         if (XY[1] < rectView.top)   //Y coordinates is the outer side of View
             XY[1] = 0;
-        else if (rectView.bottom< XY[1])
+        else if (rectView.bottom < XY[1])
             XY[1] = rectView.height();
         else                                            //Y coordinates is the inner side of View
             XY[1] -= rectView.top;
