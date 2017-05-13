@@ -33,6 +33,8 @@ public class ImageProcessing {
     }
 
     public Bitmap drawCrossHair(ImageView imageView, Bitmap bitmap, int x, int y, int lineThickness, int color) {
+        boolean byPixel = false;
+
         tmpBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
         bitmapHeight = bitmap.getHeight();
         bitmapWidth = bitmap.getWidth();
@@ -51,18 +53,39 @@ public class ImageProcessing {
         if (y < lineThickness)
             y += lineThickness - y;
 
-        for (int i = 0; i < bitmapHeight; i++) {
-            for (idxLineThickness = 0; idxLineThickness < lineThickness + 1; idxLineThickness++) {
-                tmpBitmap.setPixel(x + idxLineThickness, i, color);
-                tmpBitmap.setPixel(x - idxLineThickness, i, color);
+        if (byPixel) {
+            for (int i = 0; i < bitmapHeight; i++) {
+                for (idxLineThickness = 0; idxLineThickness < lineThickness + 1; idxLineThickness++) {
+                    tmpBitmap.setPixel(x + idxLineThickness, i, color);
+                    tmpBitmap.setPixel(x - idxLineThickness, i, color);
+                }
+            }
+            for (int i = 0; i < bitmapWidth; i++) {
+                for (idxLineThickness = 0; idxLineThickness < lineThickness + 1; idxLineThickness++) {
+                    tmpBitmap.setPixel(i, y + idxLineThickness, color);
+                    tmpBitmap.setPixel(i, y - idxLineThickness, color);
+
+                }
             }
         }
-        for (int i = 0; i < bitmapWidth; i++) {
-            for (idxLineThickness = 0; idxLineThickness < lineThickness + 1; idxLineThickness ++) {
-                tmpBitmap.setPixel(i, y + idxLineThickness, color);
-                tmpBitmap.setPixel(i, y - idxLineThickness, color);
 
+        if (!byPixel){
+            pixels = new int[bitmapHeight * bitmapWidth];
+            tmpBitmap.getPixels(pixels, 0, bitmapWidth, 0, 0, bitmapWidth, bitmapHeight);
+            for (int i = 0; i < bitmapWidth; i ++){
+                for (idxLineThickness = 0; idxLineThickness < lineThickness + 1; idxLineThickness ++) {
+                    pixels[i + (bitmapWidth * y) - (idxLineThickness * bitmapWidth)] = color;
+                    pixels[i + (bitmapWidth * y) + (idxLineThickness * bitmapWidth)] = color;
+                }
             }
+            for (int i = 0; i < bitmapWidth * bitmapHeight; i += bitmapWidth){
+                for (idxLineThickness = 0; idxLineThickness < lineThickness + 1; idxLineThickness++) {
+                    pixels[i + x - idxLineThickness] = color;
+                    pixels[i + x + idxLineThickness] = color;
+
+                }
+            }
+            tmpBitmap.setPixels(pixels, 0, bitmapWidth, 0, 0, bitmapWidth, bitmapHeight);
         }
 
         imageView.setImageBitmap(tmpBitmap);
@@ -72,9 +95,11 @@ public class ImageProcessing {
 
 
     public Bitmap drawRectangle(ImageView imageView, Bitmap bitmap, int startX, int startY, int endX, int endY, int lineThickness, int color) {
+        boolean byPixel = false;
         tmpBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
         bitmapHeight = bitmap.getHeight();
         bitmapWidth = bitmap.getWidth();
+
 
         if (startX == bitmapWidth)
             startX--;
@@ -103,21 +128,48 @@ public class ImageProcessing {
         if (endY < lineThickness)
             endY += lineThickness - endY;
 
-        for (int i = startX - lineThickness; i < endX + lineThickness; i++) {
-            for (idxLineThickness = 0; idxLineThickness < lineThickness + 1; idxLineThickness++) {
-                tmpBitmap.setPixel(i, startY + idxLineThickness, color);
-                tmpBitmap.setPixel(i, endY + idxLineThickness, color);
-                tmpBitmap.setPixel(i, startY - idxLineThickness, color);
-                tmpBitmap.setPixel(i, endY - idxLineThickness, color);
+        if (byPixel) {
+            for (int i = startX - lineThickness; i < endX + lineThickness; i++) {
+                for (idxLineThickness = 0; idxLineThickness < lineThickness + 1; idxLineThickness++) {
+                    tmpBitmap.setPixel(i, startY + idxLineThickness, color);
+                    tmpBitmap.setPixel(i, endY + idxLineThickness, color);
+                    tmpBitmap.setPixel(i, startY - idxLineThickness, color);
+                    tmpBitmap.setPixel(i, endY - idxLineThickness, color);
+                }
+            }
+            for (int i = startY; i < endY; i++) {
+                for (idxLineThickness = 0; idxLineThickness < lineThickness + 1; idxLineThickness++) {
+                    tmpBitmap.setPixel(startX + idxLineThickness, i, color);
+                    tmpBitmap.setPixel(endX + idxLineThickness, i, color);
+                    tmpBitmap.setPixel(startX - idxLineThickness, i, color);
+                    tmpBitmap.setPixel(endX - idxLineThickness, i, color);
+                }
             }
         }
-        for (int i = startY; i < endY; i++) {
-            for (idxLineThickness = 0; idxLineThickness < lineThickness + 1; idxLineThickness++) {
-                tmpBitmap.setPixel(startX + idxLineThickness, i, color);
-                tmpBitmap.setPixel(endX + idxLineThickness, i, color);
-                tmpBitmap.setPixel(startX - idxLineThickness, i, color);
-                tmpBitmap.setPixel(endX - idxLineThickness, i, color);
+
+        if (!byPixel) {
+
+            pixels = new int[bitmapHeight * bitmapWidth];
+            tmpBitmap.getPixels(pixels, 0, bitmapWidth, 0, 0, bitmapWidth, bitmapHeight);
+
+            for (int i = startX - lineThickness; i < endX + lineThickness + 1; i++) {
+                for (idxLineThickness = 0; idxLineThickness < lineThickness + 1; idxLineThickness++) {
+                    pixels[i + (startY * bitmapWidth) - (idxLineThickness * bitmapWidth)] = color;
+                    pixels[i + (endY * bitmapWidth) + (idxLineThickness * bitmapWidth)] = color;
+                    pixels[i + (startY * bitmapWidth) + (idxLineThickness * bitmapWidth)] = color;
+                    pixels[i + (endY * bitmapWidth) - (idxLineThickness * bitmapWidth)] = color;
+                }
             }
+            for (int i = startY; i < endY; i++) {
+                for (idxLineThickness = 0; idxLineThickness < lineThickness + 1; idxLineThickness++) {
+                    pixels[i * bitmapWidth + startX - idxLineThickness] = color;
+                    pixels[i * bitmapWidth + endX + idxLineThickness] = color;
+                    pixels[i * bitmapWidth + startX + idxLineThickness] = color;
+                    pixels[i * bitmapWidth + endX - idxLineThickness] = color;
+                }
+            }
+
+            tmpBitmap.setPixels(pixels, 0, bitmapWidth, 0, 0, bitmapWidth, bitmapHeight);
         }
 
         imageView.setImageBitmap(tmpBitmap);
