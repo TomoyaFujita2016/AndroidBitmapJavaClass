@@ -1,5 +1,3 @@
-package com.adilahui_app.canvastest;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -9,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.media.Image;
+import android.net.Proxy;
 import android.nfc.Tag;
 import android.util.Log;
 import android.view.View;
@@ -18,28 +17,31 @@ import android.widget.ImageView;
  * Created by Tomoya on 2017/05/19.
  */
 
-public class CanvasBitmap extends ImageProcessing {
+public class CanvasBitmap {
 
     private Bitmap bitmap, tmpBitmap;
     private ImageView imageView;
     private Activity activity;
     private Canvas canvas;
-    private Paint paint, paintImg;
-    private int color;
+    private Paint paintCrossHair, paintRect;
 
-    private int[] bmpSize;
+    public int[] bmpSize;
+    public int[] crossHairXY;
+    public int[] rectStartXY, rectEndXY;
 
-    CanvasBitmap(Bitmap bitmap, ImageView imageView, Activity activity, int color) {
+    CanvasBitmap(Bitmap bitmap, ImageView imageView, Activity activity) {
         Log.d("Constructor", "Loaded Constructor");
 
         this.bitmap = bitmap;
         this.imageView = imageView;
         this.activity = activity;
-        this.color = color;
+
+        crossHairXY = new int[2];
+        rectStartXY = new int[2];
+        rectEndXY = new int[2];
 
         canvas = new Canvas(bitmap);
         canvas.drawBitmap(bitmap, 0, 0, null);
-
 
 
         bmpSize = new int[2];
@@ -48,14 +50,16 @@ public class CanvasBitmap extends ImageProcessing {
 
         tmpBitmap = this.bitmap.copy(Bitmap.Config.ARGB_8888, true);
 
-        paint = new Paint();
-        paint.setColor(color);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setAntiAlias(true);
+        paintCrossHair = new Paint();
+        paintCrossHair.setStyle(Paint.Style.STROKE);
+        paintCrossHair.setAntiAlias(true);
 
-        paintImg = new Paint();
-        paint.setStyle(Paint.Style.FILL_AND_STROKE);
-        paint.setAntiAlias(true);
+        paintRect = new Paint();
+        paintRect.setStyle(Paint.Style.STROKE);
+        paintRect.setAntiAlias(true);
+        
+        
+        
     }
 
 
@@ -88,14 +92,41 @@ public class CanvasBitmap extends ImageProcessing {
         return XY;
     }
 
-    public void drawCrossHair(int[] XY) {
+    public void drawCrossHair(int[] XY, int color, int thickness) {
         XY = ToInner(XY);
+        crossHairXY[0] = XY[0];
+        crossHairXY[1] = XY[1];
 
-        canvas.drawBitmap(tmpBitmap, 0, 0, paintImg);
-        canvas.drawLine(0, XY[1], bitmap.getWidth(), XY[1], paint);
-        canvas.drawLine(XY[0], 0, XY[0], bitmap.getHeight(), paint);
+        paintCrossHair.setColor(color);
+        paintCrossHair.setStrokeWidth(thickness);
+
+        canvas.drawBitmap(tmpBitmap, 0, 0, null);
+        canvas.drawLine(0, XY[1], bitmap.getWidth(), XY[1], paintCrossHair);
+        canvas.drawLine(XY[0], 0, XY[0], bitmap.getHeight(), paintCrossHair);
         imageView.setImageBitmap(bitmap);
 
+
+    }
+
+    public void drawRectangle(int[] startXY, int[] endXY, int color, int thickness) {
+        startXY = ToInner(startXY);
+        rectStartXY[0] = startXY[0];
+        rectStartXY[1] = startXY[1];
+        endXY = ToInner(endXY);
+        rectEndXY[0] = endXY[0];
+        rectEndXY[1] = endXY[1];
+
+        paintRect.setColor(color);
+        paintRect.setStrokeWidth(thickness);
+        paintRect.setColor(color);
+
+        canvas.drawBitmap(tmpBitmap, 0, 0, null);
+        canvas.drawLine(startXY[0], startXY[1], startXY[0], endXY[1], paintRect);    // (|  )
+        canvas.drawLine(startXY[0], startXY[1], endXY[0], startXY[1], paintRect);    //(upper side ---)
+        canvas.drawLine(startXY[0], endXY[1], endXY[0], endXY[1], paintRect);        //(lower side ---)
+        canvas.drawLine(endXY[0], startXY[1], endXY[0], endXY[1], paintRect);      //(  |)
+
+        imageView.setImageBitmap(bitmap);
 
     }
 
