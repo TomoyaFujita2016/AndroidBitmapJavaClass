@@ -1,17 +1,13 @@
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
 import android.graphics.Rect;
-import android.media.Image;
-import android.net.Proxy;
-import android.nfc.Tag;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
+
+import java.io.File;
 
 /**
  * Created by Tomoya on 2017/05/19.
@@ -24,31 +20,36 @@ public class CanvasBitmap {
     private Activity activity;
     private Canvas canvas;
     private Paint paintCrossHair, paintRect;
+    private File[] images;
+    private BitmapFactory.Options options;
 
     public int[] bmpSize;
     public int[] crossHairXY;
     public int[] rectStartXY, rectEndXY;
 
-    CanvasBitmap(Bitmap bitmap, ImageView imageView, Activity activity) {
+    CanvasBitmap(File[] images, ImageView imageView, Activity activity) {
         Log.d("Constructor", "Loaded Constructor");
 
         this.bitmap = bitmap;
+        this.images = images;
         this.imageView = imageView;
         this.activity = activity;
 
+        options = new BitmapFactory.Options();
+        options.inMutable = true;
         crossHairXY = new int[2];
         rectStartXY = new int[2];
         rectEndXY = new int[2];
 
-        canvas = new Canvas(bitmap);
-        canvas.drawBitmap(bitmap, 0, 0, null);
+        //canvas = new Canvas(bitmap);
+        //canvas.drawBitmap(bitmap, 0, 0, null);
 
 
         bmpSize = new int[2];
         bmpSize[0] = bitmap.getWidth();
         bmpSize[1] = bitmap.getHeight();
 
-        tmpBitmap = this.bitmap.copy(Bitmap.Config.ARGB_8888, true);
+
 
         paintCrossHair = new Paint();
         paintCrossHair.setStyle(Paint.Style.STROKE);
@@ -57,8 +58,7 @@ public class CanvasBitmap {
         paintRect = new Paint();
         paintRect.setStyle(Paint.Style.STROKE);
         paintRect.setAntiAlias(true);
-        
-        
+
         
     }
 
@@ -92,7 +92,13 @@ public class CanvasBitmap {
         return XY;
     }
 
-    public void drawCrossHair(int[] XY, int color, int thickness) {
+    private void fileToBitmap(int imageNumber){
+        bitmap = BitmapFactory.decodeFile(images[imageNumber].getPath(),options);
+        tmpBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+    }
+
+    public void drawCrossHair(int imageNumber, int[] XY, int color, int thickness) {
+        fileToBitmap(imageNumber);
         XY = ToInner(XY);
         crossHairXY[0] = XY[0];
         crossHairXY[1] = XY[1];
@@ -108,7 +114,9 @@ public class CanvasBitmap {
 
     }
 
-    public void drawRectangle(int[] startXY, int[] endXY, int color, int thickness) {
+    public void drawRectangle(int imageNumber, int[] startXY, int[] endXY, int color, int thickness) {
+        fileToBitmap(imageNumber);
+
         startXY = ToInner(startXY);
         rectStartXY[0] = startXY[0];
         rectStartXY[1] = startXY[1];
